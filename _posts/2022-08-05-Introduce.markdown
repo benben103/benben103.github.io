@@ -7,7 +7,13 @@ tags: [rest, work]
 categories: rest
 ---
 ---
-A paragraph looks like this — dolor amet cray stumptown fingerstache neutra food truck seitan poke cardigan waistcoat VHS snackwave celiac hella. Godard seitan shoreditch flexitarian next level trust fund man braid vegan listicle keytar bitters. Disrupt cray fashion axe unicorn lomo shaman poke glossier keffiyeh snackwave austin tattooed seitan hexagon lo-fi. Lumbersexual irony vaporware, butcher shaman church-key iceland.
+Hello I'm Hyeonjun Bae from Goyang, South Korea.
+
+I wanted to experience as much as possible and tried to live like that. Until recently, I worked as a music artist named 'benkidish' and created artwork with Photoshop. 
+In addition, I also prodeced a music video and advertising video with the ability to edit videos.
+
+
+Currently, I'm focusing on data analysis and coding. This blog was also created by studying coding.
 
 ***
 
@@ -41,7 +47,7 @@ A paragraph looks like this — dolor amet cray stumptown fingerstache neutra fo
 * 정규 앨범 [보통사람] - 2022.07.13 
 {% endhighlight %}
 
-#### 디자인 활동
+#### [디자인 활동](https://grafolio.naver.com/ksylh1)
 {% highlight markdown %}
 * 2020.02.16 TOYCOIN [엄지손가락 (Feat. Kidd King)] 싱글 앨범커버 제작
 * 2020.03.29 TOYCOIN [방 (Feat. 009)] 싱글 앨범커버 제작
