@@ -1,8 +1,11 @@
 source "https://rubygems.org"
 
-gem "dotenv"
-gem "github-pages"
-gem "jekyll"
-gem "jekyll-github-metadata"
+gem 'bundler'
+gem 'jekyll'
+gem 'jekyll-paginate'
+
+# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
+gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
 
 gem "webrick", "~> 1.7"
