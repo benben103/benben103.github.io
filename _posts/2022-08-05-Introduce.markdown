@@ -3,8 +3,8 @@ layout: post
 title: Introduce
 image: 3.jpg
 date: 2022-08-03 18:23:20 +0200
-tags: [rest, work]
-categories: rest
+tags: [Introduce, Resume]
+categories: Introduce
 ---
 ---
 Hello I'm Hyeonjun Bae from Goyang, South Korea.
