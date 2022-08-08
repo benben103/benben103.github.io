@@ -2,7 +2,7 @@
 layout: post
 title: 2021 Korean Journalist - Gender Perception
 image: 13.jpg
-date: 2022-08-04 18:23:20 +0200
+date: 2022-08-03 18:23:20 +0200
 tags: [Project, 2021 Korean Journalist]
 categories: Project
 ---
