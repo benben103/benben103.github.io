@@ -6,7 +6,10 @@ date: 2022-08-03 17:50:18 +0200
 tags: [Project, 2021 Media Audience]
 categories: Project
 ---
+본 연구는 한국언론진흥재단의 2021 언론 수용자 인식 조사 보고서를 활용하여 Z세대와 베이비 붐 세대의 디지털 미디어 이용 행태를 탐색하였다. 
 
+디지털 미디어 기술이 보편화 되면서 사람들의 디지털 미디어/콘텐츠 이용 또한 늘어났다. 전통 미디어로 분류된 텔레비전, 신문, 라디오 등의 매체 소비가 줄어들고, 포털, 메신저 서비스, SNS, 온라인 동영상 플랫폼 등의 디지털 미디어 이용이 증가하였다(한국언론진흥재단, 2019). 
+디지털 미디어 보편화는 다양한 정보를 제공하지만, 세대 별 미디어 이용 능력이 다르기 때문에 세대 간 미디어 이용 격차가 나타날 수 있다(황용석∙박남수∙이현주∙이원태, 2012). 즉, 미디어와 콘텐츠 이용방식과 수준은 연령과 세대에 따라 다르게 나타나고 이로 인해 세대 간 갈등이 유발 또는 심화 될 수 있다.
 ***
 [2021 언론수용자 조사 - 한국언론진흥재단](https://www.kpf.or.kr/front/research/consumerDetail.do?miv_pageNo=&miv_pageSize=&total_cnt=&LISTOP=&mode=W&seq=592381&link_g_topmenu_id=&link_g_submenu_id=&link_g_homepage=F&reg_stadt=&reg_enddt=&searchkey=all1&searchtxt=)
 {% highlight markdown %}
