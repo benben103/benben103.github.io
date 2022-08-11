@@ -1,19 +1,19 @@
 ---
 layout: post
-title: Introduce
+title: 자기소개서
 image: 3.jpg
 date: 2022-08-05 18:23:20 +0200
-tags: [Introduce, Resume]
-categories: Introduce
+tags: [자기소개서, 이력서]
+categories: 자기소개서
 ---
 ---
-Hello I'm Hyeonjun Bae from Goyang, South Korea.
+안녕하세요. 중부대학교 미디어커뮤니케이션학과 4학년 재학 중인 배현준입니다.
 
-I wanted to experience as much as possible and tried to live like that. Until recently, I worked as a music artist named 'benkidish' and created artwork with Photoshop. 
-In addition, I also prodeced a music video and advertising video with the ability to edit videos.
+현재 데이터 분석과 코딩을 중점으로 하여 학업에 임하고 있습니다. SPSS로 통계분석을 처음 접하였고, 보다 폭 넓은 데이터 분석을 위해 파이썬 (Python)을 익히고 있습니다.
 
+저는 다양한 일에 관심이 많으며, 그 분야에 대해 전문적인 사람이 될 때까지 노력합니다. (장점)
 
-Currently, I'm focusing on data analysis and coding. This blog was also created by studying coding.
+(데이터분석에 대한 열정, 동기)
 
 ***
 
@@ -30,9 +30,18 @@ Currently, I'm focusing on data analysis and coding. This blog was also created 
 * ***'2022년 제 20회 통계청 논문 공모전'*** *(참여)*
 
 ##### 프로젝트
-* ***[소셜 미디어 환경에서 네트워크 의제 설정 효과와 공중 인지분석] - 신진연구자지원사업*** *(학생연구원)*
-* ***[2021 언론인의 성 불평등 인식] - 개인 프로젝트***
-* ***[2021 언론인의 Solution Journalism] - 개인 프로젝트***
+* ***[소셜 미디어 환경에서 네트워크 의제 설정 효과와 공중 인지분석]***
+{% highlight markdown %}
+한국연구재단에서 지원하는 신진연구자지원사업으로 중부대학교 미디어커뮤니케이션학과 김범수 교수님의 지도 하에 학생연구원으로 참여함.
+{% endhighlight %}
+* ***[2021 언론인의 성 불평등 인식]***
+{% highlight markdown %}
+한국언론진흥재단의 [2021 한국의 언론인]의 데이터를 활용하여 현재 언론인의 성 불평등 인식이 어떻게 나타나는 지에 대해 분석을 실시함.
+{% endhighlight %}
+* ***[2021 언론인의 Solution Journalism]***
+{% highlight markdown %}
+한국언론진흥재단의 [2021 한국의 언론인]의 데이터를 활용하여 언론 역할의 기대와 평가의 간극이 언론인으로서 효능감과 조직에 대한 만족도에 영향을 미치는 지 분석을 실시함.
+{% endhighlight %}
 
 ***
 

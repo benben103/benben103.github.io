@@ -4,12 +4,12 @@ baseurl: "" # the subpath of your site, e.g. /blog
 url: "http://benben103.com" # the base hostname & protocol for your site, e.g. http://example.com
 
 # Author
-author-name:    Hyeonjun Bae
+author-name:    배현준
 author-image:   1.jpg
-author-job:     Data analyst
+author-job:
 author-email:   beejuny@gmail.com # Add your email for contant form.
 author-twitter: # Add your twitter account
-about-author:   I am student learning data analysis and coding.
+about-author:   안녕하세요. 중부대학교 미디어커뮤니케이션학과 4학년 재학 중인 배현준입니다. 현재 데이터 분석과 코딩을 공부 중입니다.
 
 # Social settings
 social-twitter:
