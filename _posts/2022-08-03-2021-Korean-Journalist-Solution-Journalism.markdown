@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 2021 Korean Journalist - Solution Journalism
+title: 2021 한국의 언론인 - 솔루션 저널리즘
 image: 5.jpg
 date: 2022-08-03 18:11:18 +0200
 tags: [Project, 2021 Korean Journalist]

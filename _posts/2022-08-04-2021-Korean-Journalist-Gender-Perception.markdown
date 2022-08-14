@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 2021 Korean Journalist - Gender Perception
+title: 2021 한국의 언론인 - 언론 내 성 불평등 인식
 image: 13.jpg
 date: 2022-08-03 18:23:20 +0200
 tags: [Project, 2021 Korean Journalist]

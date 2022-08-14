@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 2021 Media Audience - How different Generations Use Digital Media
+title: 2021 언론 수용자 인식 조사 - Z세대와 베이비 붐 세대의 디지털 미디어 이용 행태
 image: 9.jpg
 date: 2022-08-03 17:50:18 +0200
 tags: [Project, 2021 Media Audience]
