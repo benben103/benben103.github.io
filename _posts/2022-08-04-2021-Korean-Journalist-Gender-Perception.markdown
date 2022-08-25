@@ -6,7 +6,7 @@ date: 2022-08-03 18:23:20 +0200
 tags: [Project, 2021 Korean Journalist]
 categories: Project
 ---
-한국언론진흥재단은 매년 언론인을 대상으로 통계조사를 진행하고 있다. 한국언론진흥재단의 [언론인 조사]는 국내 유일의 언론인 대상 통계 조사다. 
+한국언론진흥재단은 매년 언론인을 대상으로 통계조사를 진행하고 있다. [언론인 조사]는 국내 유일의 언론인 대상 통계 조사다. 
 
 본 연구자는 [2021 한국의 언론인] 데이터에서 언론사의 성 불평등 인식을 집중하여 살펴보았다. 최근 몇 년간 젠더 갈등이 큰 이슈로 대두되었다. 많은 사람들이 관심을 가지고 있는 주제인 만큼 언론 역시 집중해서 보도하는 경향을 보였다. 이처럼 갈등이 심화되고 있는 상황에서 언론은 중립적인 입장을 취하는 것이 중요하다. 따라서 현재 언론 내에서의 성 불평등 인식을 중점으로 살펴보았다.
 
@@ -19,7 +19,182 @@ categories: Project
 자세한 내용은 홈페이지 참조
 {% endhighlight %}
 
-#### Code
+---
+#### 데이터 불러오기
+```python 
+import pandas as pd
+
+df = pd.read_csv("2021_gender.csv")
+df_gender = df[['gender', 'age', 'years', 'education', 'income', 'job_status', 'marital_status', 'id_stance',
+               'children', 'perceived_ssclass', 'newstype', 'news_form', 'location', 'position', 'gender_equity', 'gender_perception']]
+
+#female dataframe 생성
+female = (df_gender.gender == 1)
+df_female = df_gender.loc[female, ['gender', 'age', 'years', 'education', 'income', 'job_status', 'marital_status', 'id_stance',
+               'children', 'perceived_ssclass', 'newstype', 'news_form', 'location', 'position', 'gender_equity', 'gender_perception']]
+df_female
+
+#male dataframe 생성
+male = (df_gender.gender == 0)
+df_male = df_gender.loc[male, ['gender', 'age', 'years', 'education', 'income', 'job_status', 'marital_status', 'id_stance',
+               'children', 'perceived_ssclass', 'newstype', 'news_form', 'location', 'position', 'gender_equity', 'gender_perception']]
+df_male
+```
+
+기존에 존재하고 있는 csv 파일을 불러오기 위해서 pandas 플러그인을 사용하였다. 분석에 쓰여질 변인(ex. 성별, 나이, 직위, 연차, 성 불평등 문제 인식 등)으로 이루어진 데이터프레임을 생성하였다.
+성별에 따른 분석을 보다 편하게 하기 위하여 "(df_gender.gender == 1),(df_gender.gender == 0)" 이라는 조건을 달아 남성과 여성의 데이터프레임을 구분지어 생성해두었다.
+
+---
+
+#### 상관관계 분석
+![Alt text](/images/q1.jpg)
+
+성 불평등 문제 인식은 5점 척도로, 총 4개의 문항으로 이루어져 있다. 숫자가 5에 가까울 수록 성 불평등 문제를 심각하게 받아들인다 할 수 있다. 가장 먼저 나이 (연차)와 성 불평등 문제 인식이 어떤 관계가 있는 지 살펴보았다.
+피어슨 상관계수를 구하기 위해 scipy의 stats 플러그인을 사용하였다. 사용법은 다음과 같다.
+```python
+from scipy import stats
+
+test = stats.pearsonr(x,y)
+
+print(test)
+```
+
+```python 
+from scipy import stats
+
+#상관관계: 나이(연차)와 성 불평등 문제 인식
+age_gender_cor = stats.pearsonr(df_gender['age'], df_gender['gender_perception'])
+print("%.2f, %.2f"% age_gender_cor) #-0.214, 0.000
+
+years_gender_cor = stats.pearsonr(df_gender['years'], df_gender['gender_perception'])
+print("%.2f, %.2f"%years_gender_cor) #-0.137, 0.000
+```
+
+나이와 성 불평등 문제 인식의 상관계수는 -0.214로 부적인 관계를 보였다. 즉 나이가 많을 수록 성 불평등 문제를 심각하게 받아들이지 않는다고 할 수 있다. 연차 역시 부적인 관계를 보였다.
+
+```python 
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+#나이 lineplot
+sns.set_style('darkgrid')
+plt.rcParams["font.family"] = 'Yoon YGO 550_TT'
+fig, ax = plt.subplots(figsize=(8,6))
+sns.lineplot(x='age', y='gender_perception', ci=None, data=df_gender, ax=ax)
+ax.set_title('나이와 성 불평등 문제 인식', x=0.5, y=1.05, fontsize=14)
+plt.xlabel('나이')
+plt.ylabel('성 불평등 문제 인식')
+plt.show()
+```
+![Alt text](/images/g1.jpg)
+
+나이와 성 불평등 문제 인식의 관계를 선 그래프로 나타냈다. 그래프를 그리기 위하여 matplot과 seaborn 플러그인을 사용하였다. 그래프의 제목, 레이블 추가와 사이즈, 색상 변경 등에 관한 코드 내용은 추후에 정리할 예정이다.
+
+---
+
+#### ANOVA 분석
+
+나이와 성 불평등 문제 인식의 관계를 더 보기 위하여 세대별로 범주화하였다. 보다 편리하게 세대별 범주화를 하기 위하여 birth(태생 연도) 변수를 새로 생성하였다. 밑 링크를 참조하여 베이비 부머, X, Y, Z세대로 범주화 하였다.
+
+```python 
+#나이 세대별 범주화 (참조: https://dailyfreepress.com/2021/03/15/generation-names-explained/)
+df_gender['birth'] = 2022 - df_gender['age']
+df_gender.loc[df_gender['birth'] > 1997, 'birth'] = 4
+df_gender.loc[df_gender['birth'] > 1981, 'birth'] = 3
+df_gender.loc[df_gender['birth'] > 1965, 'birth'] = 2
+df_gender.loc[df_gender['birth'] > 1946, 'birth'] = 1
+df_gender['generation'] = df_gender['birth'].replace({1:'Baby Boomer', 2:'Generation X', 3:'Generation Y', 4:'Generation Z'})
+```
+
+세대간 성 불평등 문제 인식에 유의미한 차이가 있는 지 확인하기 위하여 ANOVA(분산분석)을 실시하였다. 사후분석은 tukey 검정을 사용하였다.
+```python 
+from statsmodels.formula.api import ols
+from statsmodels.stats.anova import anova_lm
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+
+#ANOVA
+model = ols('종속변수 ~ C(독립변수)', 데이터프레임).fit()
+print(anova_lm(model))
+
+#Tukey
+hsd = pairwise_tukeyhsd(데이터프레임['종속변수'], 데이터프레임['독립변수'], alpha=0.05)
+print(hsd.summary())
+```
+
+```python 
+from statsmodels.formula.api import ols
+from statsmodels.stats.anova import anova_lm
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+
+#세대별 성 불평등 문제 인식 ANOVA, 사후분석
+model = ols('gender_perception ~ C(generation)', df_gender).fit()
+print(anova_lm(model)) #F=24.07 P < 0.05
+hsd = pairwise_tukeyhsd(df_gender['gender_perception'], df_gender['generation'], alpha=0.05)
+print(hsd.summary()) #BB - Y, BB - Z, X -Y
+```
+![Alt text](/images/t1.jpg)
+
+세대간 성 불평등 문제 인식을 살펴본 결과, 유의미한 차이가 있는 것으로 확인되었다. 사후 검정을 통해 어떤 집단이 서로 차이가 있는지 확인하였다. 베이비 부머 세대가 Y, Z세대와 유의미한 차이가 있었으며, X세대와 Y세대가 통계적으로 유의미한 차이를 보였다.
+
+```python 
+#세대별 boxplot
+sns.set_style('darkgrid')
+plt.rcParams["font.family"] = 'Yoon YGO 550_TT'
+fig, ax = plt.subplots(figsize=(8,6))
+sns.boxplot(x='generation', y='gender_perception', order=['Baby Boomer\n(1946-1964)', 'Generation X\n(1965-1980)',
+                                                          'Generation Y\n(1981-1996)', 'Generation Z\n(1997-2012)'], data=df_gender, ax=ax)
+ax.set_title('세대별 성 불평등 문제 인식', x=0.5, y=1.05, fontsize=14)
+#ax.text(x=1.0, y=1.01, s='F=-24.07, p<0.05', fontsize=10, alpha=0.75, ha='right', va='bottom', transform=ax.transAxes)
+plt.xlabel('세대 구분')
+plt.ylabel('성 불평등 문제 인식')
+plt.show()
+```
+![Alt text](/images/g2.jpg)
+
+세대간 성 불평드 문제 인식 관계를 박스 그래프로 나타냈다. 그래프에서 보이는 것처럼 앞 세대가 비교적 성 불평등 문제 인식이 낮을 점을 확인할 수 있다.
+
+---
+
+#### t-test 분석
+
+성평등과 관련한 프로젝트로 종속변수인 성 불평등 문제 인식에 가장 큰 영향을 주는 변수는 성별일 것이라 예상하였다. 성별간 성 불평등 문제 인식이 어떻게 나타나는지 보기 위하여 t-test 분석을 실시하였다.
+
+```python 
+#집단 구분 (남성/여성)
+perception_male = df_gender.loc[df_gender['gender']=='남성', 'gender_perception']
+perception_female = df_gender.loc[df_gender['gender']=='여성', 'gender_perception']
+
+levene =stats.levene(perception_male, perception_female)
+print("leveneresult(statistic = %.2f, pvalue = %.2f" % levene) #분산 동일성 검정 p = 0.633
+
+ttest = stats.ttest_ind(perception_male, perception_female, equal_var=True)
+print("t-value = %.2f, p-value = %.2f" % ttest) #t = -18.842 p = 0.000
+
+#성별에 따른 성 불평등 문제 인식 barplot
+sns.set_style('darkgrid')
+colors = ["#95B7F0", "#F07674"]
+sns.set_palette(sns.color_palette(colors))
+plt.rcParams["font.family"] = 'Yoon YGO 550_TT'
+fig, ax = plt.subplots(figsize=(8,6))
+sns.barplot(x='gender', y='gender_perception', order=['남성','여성'], data=df_gender, ax=ax)
+ax.set_title('성별간 성 불평등 문제 인식', x=0.5, y=1.05, fontsize=14)
+#ax.text(x=1.0, y=1.01, s='t=-18.84, p<0.05', fontsize=10, alpha=0.75, ha='right', va='bottom', transform=ax.transAxes)
+ax.annotate(text='평균=2.41', xy=(0, 1), xycoords='data', ha='center', fontsize=10, alpha=1)
+ax.annotate(text='평균=3.11', xy=(1, 1), xycoords='data', ha='center', fontsize=10, alpha=1)
+plt.xlabel('성별')
+plt.ylabel('성 불평등 문제 인식')
+plt.show()
+```
+![Alt text](/images/g3.jpg)
+
+분석 결과, 남성과 여성간 성 불평등 문제 인식에 유의미한 차이가 있는 것을 밝혀냈다. 남성의 성 불평등 문제 인식 평균은 5점 중 2.41인 것에 비해, 여성은 3.11로 남성보다 성 불평등 문제를 심각하게 받아들인다고 할 수 있다.
+
+---
+
+
+---
+
+#### 전체 Code
 ```python 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -132,7 +307,7 @@ plt.xlabel('성별')
 plt.ylabel('성 불평등 문제 인식')
 plt.show()
 
-#t-test 결혼 여부에 따른 성평등 문제점
+#t-test 결혼 여부에 따른 성 불평등 문제 인식
 
 #집단 구분 (미혼/기혼)
 perception_married = df_gender.loc[df_gender['marital_status']=='기혼', 'gender_perception']
