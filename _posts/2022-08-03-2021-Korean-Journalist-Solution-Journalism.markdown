@@ -8,7 +8,8 @@ categories: Project
 ---
 한국언론진흥재단은 매년 언론인을 대상으로 통계조사를 진행하고 있다. 한국언론진흥재단의 [언론인 조사]는 국내 유일의 언론인 대상 통계 조사다.
 
-본 연구자는 [2021 한국의 언론인] 데이터에서 속해있는 조직과 언론인이라는 직업에 대한 만족도, 언론의 역할에 관한 문항에 집중하였다.
+이번에는 [2021 한국의 언론인] 데이터에서 언론인 직업에 대한 만족도, 언론의 역할에 관한 문항에 집중하였다. 속해있는 언론사의 역할 수행이 기자의 직업 만족도와 효능감에 영향을 미칠 것이라 예상하였다. 언론은 대중에게 정확한 정보를 제공하고 사회 현안에 대한 다양한 의견을 전달하는 역할을 맡고 있다. 각자 속한 언론사가 이 역할을 잘 수행한다고 생각할 수록 기자라는 직업의 만족도와 직무의 효능감이 높아질 것이라 예상하였다.
+언론의 역할 중 사회 현안에 대한 정확한 정보 제공, 다양한 의견 제시, 해결책 제시를 솔루션 저널리즘이라 정의하였다.
 
 ***
 [2021 한국의 언론인 - 한국언론진흥재단](https://www.kpf.or.kr/front/research/reporterDetail.do?miv_pageNo=&miv_pageSize=&total_cnt=&LISTOP=&mode=W&seq=592375&link_g_topmenu_id=&link_g_submenu_id=&link_g_homepage=F&reg_stadt=&reg_enddt=&searchkey=all1&searchtxt=)
@@ -19,9 +20,95 @@ categories: Project
 자세한 내용은 홈페이지 참조
 {% endhighlight %}
 
-#### Code
+---
+
+#### 데이터 불러오기
+
 ```python
 import pandas as pd
+
+#데이터 불러오기
+df = pd.read_csv("2021_korean_journalist_new.csv")
+```
+
+지난 프로젝트인 [언론 내 성 불평등 문제 인식]과 같은 데이터를 사용한다. csv파일을 불러오기 위해서는 pandas 모듈을 불러온 후 pd.read_csv("")를 입력하면 된다.
+
+---
+#### 변수 생성 및 신뢰도 측정
+
+![Alt text](/images/q2.jpg)
+
+솔루션 저널리즘이 얼마나 중요한지 기자는 각 항목을 5점 척도로 응답하였다. 다음 문항에서는 실제로 속해있는 언론사가 그 역할을 어느 정도 실행하고 있는지 똑같은 문항을 두고 응답하였다. 세부 문항 1~7번 중 솔루션 저널리즘에 해당하는 1~4번 문항을 사용하기로 하였다. 역할 기대와 역할 수행의 간극을 독립변수로 사용하기 위해 새롭게 변수를 생성하였다.
+
+코드는 다음과 같다.
+
+```python
+import pingouin as pg #Cronbach's alpha
+
+#solution journalism (기자 기대)
+solution_expected = df[['Q2_1', 'Q2_2', 'Q2_3', 'Q2_4']] #(McIntyre & Lough, 2021)
+pg.cronbach_alpha(data=solution_expected) #신뢰도 측정 (cronbach alpha) a = .80
+df['solution_expected'] = df[['Q2_1', 'Q2_2', 'Q2_3', 'Q2_4']].mean(axis=1)
+df['solution_expected'].mean() # 4.17
+
+#solution journalism (언론 수행)
+solution = df[['Q3_1', 'Q3_2', 'Q3_3', 'Q3_4']]
+pg.cronbach_alpha(data=solution) #신뢰도 측정 (cronbach alpha) a = .84
+df['solution'] = df[['Q3_1', 'Q3_2', 'Q3_3', 'Q3_4']].mean(axis=1)
+df['solution'].mean() # 3.48
+
+
+#언론사 실행과 언론인들의 기대치 간 차이
+df['difference'] = abs(df['solution'] - df['solution_expected'])
+```
+
+세부 문항을 묶은 새로운 변수의 크론바흐 알파 계수를 확인하기 위하여 pingouin 모듈을 사용하였다. pg.cronbach_alpha(data=)를 입력하면 설문 문항의 크론바흐 알파 계수 값을 얻을 수 있다. 새로 만든 두 변수 모두 0.8 이상으로 일관성을 가지고 있다.
+
+각 세부 항목의 응답을 더한 후 평균 값을 기자 기대, 언론 수행 변수로 생성하였다. 솔루션 저널리즘의 기자 기대는 평균 값이 4.17이며 언론 수행은 평균 3.48이다. 두 변수의 간극을 위해 언론 수행 변수에서 기자 기대 변수를 뺀 값의 절대값(abs)을 간극(between) 변수로 설정하였다. 
+
+
+![Alt text](/images/q3.jpg)
+![Alt text](/images/q4.jpg)
+
+종속 변수로 사용할 조직에 대한 만족도와 직업 효능감은 위 그림과 같은 설문 문항으로 측정되었다.
+
+```python
+#org. satisfaction: 조직만족
+satisfaction = df[['Q29_1', 'Q29_2', 'Q29_3']]
+pg.cronbach_alpha(data=satisfaction) #신뢰도 측정 (cronbach alpha) a = .87
+df['satisfaction'] = df[['Q29_1', 'Q29_2', 'Q29_3']].mean(axis=1)
+df['satisfaction'].mean() # 3.46
+
+#journalistic efficacy: 직업 효능감
+efficacy = df[['Q31_1', 'Q31_2']]
+pg.cronbach_alpha(data=efficacy) #신뢰도 측정 (cronbach alpha) a = .83
+df['efficacy'] = df[['Q31_1', 'Q31_2']].mean(axis=1)
+df['efficacy'].mean() # 3.44
+```
+
+조직 만족도와 직업 효능감 문항 모두 상관계수 0.8 이상의 값을 가졌다. 조직 만족도의 평균 값은 3.46이며, 직업 효능감의 평균 값은 3.44이다.
+
+```python
+#Data frame creation
+df_new = df[['gender', 'age', 'years', 'education', 'income', 'job_status', 'marital_status', 'id_stance',
+               'perceived_ssclass', 'newstype', 'location', 'position', 'solution', 'solution_expected',
+                'difference', 'satisfaction', 'efficacy']]
+
+df_new = pd.get_dummies(df_new) #더미 변수 포함 데이터 셑
+df_new #데이터 확인 with dummy variable
+```
+
+이번 프로젝트에서 사용할 변수로 새로운 데이터프레임을 생성하였다. pd.get_dummies는 범주형 변수를 더미 변수로 변환해주는 명령어이다.
+
+---
+
+
+
+---
+#### 전체 Code
+```python
+import pandas as pd
+import pingouin as pg #Cronbach's alpha
 from numpy import mean
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -42,7 +129,7 @@ df['newstype'].replace({1:'papers',2:'TV',3:'internet',4:'telecom'}, inplace=Tru
 df['working_type'].replace({1:'1',2:'0'}, inplace=True) #1 = 정규직 0 = 비정규직
 df['position'] = df['position'].replace({1:5, 2:4, 3:3, 4:2, 5:1})
 
-#solution journalism (기자 인식)
+#solution journalism (기자 기대)
 solution_expected = df[['Q2_1', 'Q2_2', 'Q2_3', 'Q2_4']] #(McIntyre & Lough, 2021)
 pg.cronbach_alpha(data=solution_expected) #신뢰도 측정 (cronbach alpha) a = .80
 df['solution_expected'] = df[['Q2_1', 'Q2_2', 'Q2_3', 'Q2_4']].mean(axis=1)
