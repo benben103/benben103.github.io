@@ -151,7 +151,7 @@ plt.show()
 ```
 ![Alt text](/images/g2.jpg)
 
-세대간 성 불평드 문제 인식 관계를 박스 그래프로 나타냈다. 그래프에서 보이는 것처럼 앞 세대가 비교적 성 불평등 문제 인식이 낮을 점을 확인할 수 있다.
+세대간 성 불평등 문제 인식 관계를 박스 그래프로 나타냈다. 그래프에서 보이는 것처럼 앞 세대가 비교적 성 불평등 문제 인식이 낮을 점을 확인할 수 있다.
 
 ---
 
@@ -191,9 +191,149 @@ plt.show()
 
 ---
 
+#### 교차분석
+
+앞선 분석을 통해서 나이와 직책, 성별이 성 불평등 인식과 밀접한 관계가 있다고 판단하여 성별과 직책을 중점으로 더 살펴보기로 하였다.
+직위와 성별의 교차표를 생성 후에, 카이스퀘어 검정을 실시하였다.
+
+```python 
+#직위와 성별 crosstab & chi-square
+df_gender['position_r'] = df_gender['position'].replace({'국장':5, '부국장':4, '부장':3, '차장':2, '평기자':1})
+pd.crosstab(df_gender["gender"], df_gender["position_r"])
+contingency = pd.crosstab(df_gender["gender"], df_gender["position_r"])
+print(contingency)
+chi, p , dof, expected = stats.chi2_contingency(contingency)
+print(f"카이스퀘어 검정통계량: {chi:.2f}",
+      f"p-value(0.05): {p:.2f}",
+      f"자유도: {dof}", sep = "\n" ) #184.854, 0.000, 4
+```
+
+pandas를 이용하면 교차표를 만들 수 있으며, stats의 chi2_contingency 모듈을 사용하면 교차표의 카이스퀘어 검정을 실시할 수 있다. 
+
+위 코드를 실행하면 다음과 같은 결과가 나타난다.
+
+![Alt text](/images/t2.jpg)
+
+카이스퀘어 검정 결과, 성별과 직위 간에는 유의한 연관성이 있는 것으로 밝혀졌다(1은 평기자, 5는 국장 순). 직위가 높아질 수록 남녀의 비율의 차이가 커지는 것을 볼 수 있다.
+
+```python 
+#직위에 따른 성별 비율 barplot
+df_gender.rename(columns = {"gender":"성별"},inplace=True)
+colors = ["#95B7F0", "#F07674"]
+sns.set_palette(sns.color_palette(colors))
+sns.set_style('darkgrid')
+plt.rcParams["font.family"] = 'Yoon YGO 550_TT'
+fig, ax = plt.subplots(figsize=(8,6))
+plt.title('직위에 따른 성별 비율', x=0.5, y=1.05, fontsize=14)
+sns.countplot(x='position', hue='성별', hue_order=['남성','여성'], data=df_gender, ax=ax)
+ax.annotate(text='56%', xy=(-0.25, 620), xycoords='data', ha='left', fontsize=8, alpha=1)
+ax.annotate(text='44%', xy=(0.15, 490), xycoords='data', ha='left', fontsize=8, alpha=1)
+ax.annotate(text='74%', xy=(0.75, 316), xycoords='data', ha='left', fontsize=8, alpha=1)
+ax.annotate(text='26%', xy=(1.15, 118), xycoords='data', ha='left', fontsize=8, alpha=1)
+ax.annotate(text='86%', xy=(1.75, 220), xycoords='data', ha='left', fontsize=8, alpha=1)
+ax.annotate(text='14%', xy=(2.15, 43), xycoords='data', ha='left', fontsize=8, alpha=1)
+ax.annotate(text='89%', xy=(2.75, 115), xycoords='data', ha='left', fontsize=8, alpha=1)
+ax.annotate(text='11%', xy=(3.15, 23), xycoords='data', ha='left', fontsize=8, alpha=1)
+ax.annotate(text='93%', xy=(3.75, 149), xycoords='data', ha='left', fontsize=8, alpha=1)
+ax.annotate(text='7%', xy=(4.15, 20), xycoords='data', ha='left', fontsize=8, alpha=1)
+plt.xlabel('직위')
+plt.show()
+```
+
+![Alt text](/images/g4.jpg)
+
+직위에 따른 성별 비율 한 눈에 보기 위하여 막대 그래프로 나타내는 코드와 그 결과이다. 평균 값은 앞선 교차표를 토대로 계산하여 직접 입력하였다. 이를 통해 언론사 내에 구조적으로 남녀간 직책에 차이가 있는 점을 알 수 있었다.
 
 ---
 
+#### 이후 분석
+
+성 불평등 인식에 가장 큰 영향을 미치는 변수는 성별이라는 것을 앞선 분석을 통해 간접적으로 알 수 있었다. 따라서 유의미한 관계를 보였던 나이와 직책을 남,여로 나누어 분석을 진행해보기로 하였다.
+
+```python
+#남성인 경우, 나이와 성 불평등 문제 인식 간 상관관계
+age_male_cor = stats.pearsonr(df_male['age'], df_male['gender_perception'])
+print("%.2f, %.2f"% age_male_cor) # -0.13, 0.00
+
+age_female_cor = stats.pearsonr(df_female['age'], df_female['gender_perception'])
+print("%.2f, %.2f"% age_female_cor) # -0.06 0.03
+
+#나이와 성 불평등 문제 인식 linplot (남성/여성)
+sns.set_style('darkgrid')
+plt.rcParams["font.family"] = 'Yoon YGO 550_TT'
+colors = ["#95B7F0", "#F07674"]
+sns.set_palette(sns.color_palette(colors))
+fig, ax = plt.subplots(figsize=(8,6))
+sns.lineplot(x='age', y='gender_perception', label='남성인 경우', ci=None, data=df_male)
+sns.lineplot(x='age', y='gender_perception', label='여성인 경우', ci=None, data=df_female)
+ax.set_title('나이에 따른 성 불평등 문제 인식 (남성인 경우 / 여성인 경우)', x=0.5, y=1.05, fontsize=14)
+plt.xlabel('나이')
+plt.ylabel('성 불평등 문제 인식')
+plt.legend
+plt.show()
+```
+
+![Alt text](/images/g5.jpg)
+
+먼저 나이에 따른 상관관계를 살펴봤다. 남녀가 같이 있는 데이터 셋에서는 상관계수 -0.214 (p<0.01)로 유의미한 관계를 보였다. 남,여를 나누어 상관분석을 실시한 결과는 남성인 경우 -0.13 (p>0.01), 여성의 경우는 -0.06 (p>0.05)로 나타났다.
+두 그룹 모두 부적인 상관관계를 보이고 있지만 여성이 성 불평등 문제 인식이 비교적 남성보다 높은 것을 그래프를 통해 확인할 수 있었다.
+
+다음으로는 직책에 따른 성 불평등 문제 인식을 남,여로 나누어 분석을 진행하였다. 두 집단을 비교하고자 5개의 척도로 나누어진 직책 변수를 2개의 집단으로 구성하였다(간부: 국장, 부국장, 부장, 차장 / 사원: 평기자)
+
+```python
+#position 집단 구분 (국장,부국장,부장,차장/평기자)
+df_gender['position_group'] = df_gender['position'].replace({'국장':'간부','부국장':'간부','부장':'간부','차장':'간부','평기자':'사원'})
+
+df_female['position_group'] = df_female['position'].replace({'국장':'간부','부국장':'간부','부장':'간부','차장':'간부','평기자':'사원'})
+df_female['position_group'].value_counts()
+
+df_male['position_group'] = df_male['position'].replace({'국장':'간부','부국장':'간부','부장':'간부','차장':'간부','평기자':'사원'})
+df_male['position_group'].value_counts()
+
+female_group_a = df_female.loc[df_female['position_group']=='간부', 'gender_perception']
+female_group_b = df_female.loc[df_female['position_group']=='사원', 'gender_perception']
+
+male_group_a = df_male.loc[df_male['position_group']=='간부', 'gender_perception']
+male_group_b = df_male.loc[df_male['position_group']=='사원', 'gender_perception']
+
+#간부와 사원 간 성 불평등 t-test
+levene =stats.levene(female_group_a, female_group_b)
+print("levenresult(statistic = %.2f, pvalue = %.2f" % levene) #분산 동일성 검정
+ttest = stats.ttest_ind(female_group_a, female_group_b, equal_var=True)
+print("t-value = %.2f, p-value = %.2f" % ttest) #t-value = -2.21, p-value = 0.03
+
+levene =stats.levene(male_group_a, male_group_b)
+print("levenresult(statistic = %.2f, pvalue = %.2f" % levene) #분산 동일성 검정
+ttest = stats.ttest_ind(male_group_a, male_group_b, equal_var=True)
+print("t-value = %.2f, p-value = %.2f" % ttest) #t-value = -2.39, p-value = 0.02
+
+df_gender.rename(columns = {"gender":"성별"},inplace=True)
+
+sns.set_style('darkgrid')
+colors = ["#95B7F0", "#F07B71"]
+sns.set_palette(sns.color_palette(colors))
+plt.rcParams["font.family"] = 'Yoon YGO 550_TT'
+fig, ax = plt.subplots(figsize=(8,6))
+sns.boxplot(x='position_group', y='gender_perception', hue="성별", hue_order=['남성','여성'], data=df_gender)
+ax.set_title('직위 그룹별 성 불평등 문제점 인식 (남/녀 구분)', x=0.5, y=1.05, fontsize=14)
+#ax.text(x=1.0, y=1.01, s='t= -2.21, p<0.05', fontsize=10, alpha=0.75, ha='right', va='bottom', transform=ax.transAxes)
+plt.xlabel('직위 그룹 구분')
+plt.ylabel('성 불평등 문제 인식')
+plt.show()
+```
+
+이 결과 역시 남,여를 나누어도 두 그룹(간부/사원)간 유의미한 차이가 있다고 나타났다. 즉 성별이 성 불평등 문제 인식에 큰 영향을 주지만 나이와 직책 또한 중요한 변수라는 점을 확인할 수 있다.
+
+위의 코드를 진행하면 다음과 같은 그래프를 확인할 수 있다.
+
+![Alt text](/images/g6.jpg)
+
+---
+
+#### 마무리
+[언론 내 성 불평등 문제 인식]은 SPSS가 아닌 Python을 활용하여 분석을 실시한 첫 번째 프로젝트이다. 한국의 언론인 조사를 살펴보던 중 성 불평등 문제 인식에 관련한 설문항목이 눈에 들어왔고, Python을 활용한 통계 분석을 연습할 수 있는 좋은 기회라고 생각하였다.
+
+---
 #### 전체 Code
 ```python 
 import pandas as pd
