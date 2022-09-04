@@ -98,13 +98,101 @@ df_new = pd.get_dummies(df_new) #더미 변수 포함 데이터 셑
 df_new #데이터 확인 with dummy variable
 ```
 
-이번 프로젝트에서 사용할 변수로 새로운 데이터프레임을 생성하였다. pd.get_dummies는 범주형 변수를 더미 변수로 변환해주는 명령어이다.
+이번 프로젝트에서 사용할 변수로 새로운 데이터프레임을 생성하였다. pd.get_dummies는 범주형 변수를 더미 변수로 변환해주는 명령어이다. 인구통계학적 변인이 문자로 들어가 있을 경우, 더미 변수로 변환하여 통계분석을 실시하는 것이 좋다. 본 프로젝트에는 newstype이라는 변수가 문자로 이루어져 있어서 더미변수로 변환하는 과정을 거쳤다.
+
+---
+#### 다중공선성
+
+다중회귀분석을 실시하기 전, 독립변수 간 상관관계가 있으면 안되기 때문에 다중공선성을 확인하였다. 코드는 다음과 같다.
+
+
+```python
+#VIF용 패키지 불러오기
+from statsmodels.formula.api import ols
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+#VIF check ; multicollinearity (다중공선성)
+vif_model = ols('satisfaction ~ age + gender + years + education + income + '
+          'job_status + id_stance + newstype_papers + newstype_TV + newstype_internet + '
+          'newstype_newswire + position', data = df_new)
+
+#predictors 이름 확인
+vif_model.exog_names
+
+#VIF 한번에 보기
+pd.DataFrame({'column': column, 'VIF': variance_inflation_factor(vif_model.exog, i)}
+             for i, column in enumerate(vif_model.exog_names)
+             if column != 'Intercept')
+```
+![Alt text](/images/t3.jpg)
+
+다중공선성을 확인하는 방법 중, VIF(분산팽창요인)을 활용하기로 하였다. VIF의 값이 10이 넘으면 다중공산성이 있다고 판단한다. 회귀분석에 쓰일 인구통계학적 변인간에 다중공선성이 없는 것을 확인하였다.
+
+---
+
+#### 다중회귀분석
+
+```python
+from scipy import stats
+
+#correlation b/w two variables (주요 변수만 확인했음)
+stats.pearsonr(df_new['solution_expected'], df_new['solution']) #r = .26
+stats.pearsonr(df_new['solution_expected'], df_new['difference']) #r = .44
+stats.pearsonr(df_new['solution'], df_new['difference']) #r = -.63
+stats.pearsonr(df_new['difference'], df_new['satisfaction']) #r= -.29
+stats.pearsonr(df_new['difference'], df_new['efficacy']) #r= -.16
+stats.pearsonr(df_new['satisfaction'], df_new['efficacy']) #r= .39
+```
+
+주요 변인간의 상관관계를 먼저 살펴봤다. 솔루션 저널리즘의 기자 기대와 실제 수행은 정적인 관계를 보였다. 기대와 수행은 두 변인의 간극과 부적의 관계를 나타냈다. 솔루션 저널리즘의 기대와 수행 간극이 커질 수록 조직 만족도와 직무 효능감은 떨어지는 부적의 관계를 가지는 것으로 나타났다. 
+
+```python
+#org.satisfaction
+lm1 = ols('satisfaction ~ age + gender + years + education + income + '
+          'id_stance + job_status + newstype_papers + newstype_TV + newstype_internet + '
+          'newstype_newswire + position + difference', data = df_new).fit()
+
+lm1.summary()#솔루션 역할 수행 수준과 기대치의 간극이 넓을수록 조직 만족도가 낮아짐 (B = -.34, SE = .03, p < .001)
+```
+
+![Alt text](/images/t4.jpg)
+
+인구통계학적 변인을 통제변인으로 둔 후, 다중회귀분석을 실시하였다. 솔루션 저널리즘의 기대와 수행의 간극이 클 수록 조직 만족도가 낮아지는 점을 확인할 수 있었다. 회귀모형의 R-squared 값은 .124이다.
+
+```python
+#journalistic efficacy
+lm2 = ols('efficacy ~ age + gender + years + education + income + '
+          'id_stance + job_status + newstype_papers + newstype_TV + newstype_internet + '
+          'newstype_newswire + position + difference', data = df_new).fit()
+
+lm2.summary()#솔루션 역할 수행 수준과 기대치의 간극이 넓을수록 직무 효능감이 낮아짐 (B = -.16, SE = .02, p < .001)
+```
+
+![Alt text](/images/t5.jpg)
+
+솔루션 저널리즘의 기대와 수행 간극이 커질 수록 직무 효능감이 낮아지는 것을 확인하였다. 조직 만족도에 비해 회귀모형의 설명력이 낮아지고, 독립변수(간극)의 B값도 낮아잰 점을 볼 수 있다.
+
+
+```python
+#IV = difference, DV = satisfaction conditional upon gender
+lm3 = ols('satisfaction ~ age + years + education + income + '
+          'id_stance + job_status + newstype_papers + newstype_TV + newstype_internet + '
+          'newstype_newswire + position + difference*gender', data = df_new).fit()
+
+lm3.summary() # 위 직접 효과 관계 (difference와 만족도)는 성별에 따라 유의미한 차이가 존재함
+```
+
+![Alt text](/images/t6.jpg)
+
+독립변수인 솔루션 저널리즘의 간극과 종속변수인 조직 만족도의 관계에 성별을 조절변수로 설정하여 분석을 실시하였다. 두 변인의 관계가 성별에 따라 유의미한 차이가 존재하는 것으로 나타났다.
+
+
+
 
 ---
 
 
 
----
 #### 전체 Code
 ```python
 import pandas as pd
