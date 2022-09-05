@@ -21,7 +21,36 @@ categories: Project
 자세한 내용은 홈페이지 참조
 {% endhighlight %}
 
-#### Code
+---
+
+#### 데이터 불러오기 및 변수 설정
+
+```python 
+import pandas as pd
+
+df_2021 = pd.read_csv("2021 언론수용자 조사 DATA_공개용_최종.csv")
+
+df_2021.rename(columns={'SQ1':'거주지역','SQ2':'도시규모','SQ3':'성별','SQ4':'연령'}, inplace=True) # 변수 이름 변경
+df_2021['성별'].replace({1:0, 2:1}, inplace=True) # 변수 값 변경
+
+df_2021['세대'] = np.nan
+df_2021.loc[df_2021['연령'] <= 26,'세대']='young'
+df_2021.loc[(df_2021['연령'] >= 58) & (df_2021['연령'] <= 66), '세대']='old'
+```
+
+pandas 모듈을 이용하여 csv 파일을 불러올 수 있다. csv 파일의 변수 이름과 값을 사용하기 쉽게 변경하는 과정을 거치는 것이 좋다. 전체 코드 중 일부를 가져왔다.
+
+데이터프레임.rename(columns={'기존 이름':'새로운 이름'}, inplace=True)은 열 이름을 바꿔주는 명령어다.
+
+데이터프레임['변수 이름'].replace({'기존 값':'바꿔줄 값'}, inplace=True)는 해당 변수의 값을 변경하는 명령어다.
+
+세대 구분을 위해 연령 변수를 이용하여 세대 변수를 생성하였다. Z세대는 2021년을 기준으로 26세 이하로 설정하였고, Baby Boomer세대는 58세에서 66세로 설정하였다. 변수의 값을 변경하거나 새로 생성할 때, 조건을 추가하려면 위와 같은 방법으로 실행하면 된다.
+
+
+
+---
+
+#### 전체 Code
 ```python 
 import numpy as np
 import pandas as pd

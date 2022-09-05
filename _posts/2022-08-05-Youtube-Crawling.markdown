@@ -2,7 +2,7 @@
 layout: post
 title: 유튜브 자막 크롤링
 image: 2.jpg
-date: 2022-08-03 17:58:18 +0200
+date: 2022-08-02 17:58:18 +0200
 tags: [Project, Crawling]
 categories: Project
 ---
