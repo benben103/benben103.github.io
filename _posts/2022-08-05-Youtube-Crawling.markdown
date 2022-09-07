@@ -91,7 +91,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from bs4 import BeautifulSoup
 import requests as req
 
-def ytb_subtitle(start_url) : ### csv 파일 생성
+def ytb_subtitle(start_url) :
     try:
         srt = YouTubeTranscriptApi.get_transcript(f"{start_url}", languages=['ko'])
 
@@ -129,6 +129,60 @@ def ytb_subtitle(start_url) : ### csv 파일 생성
 
 ```
 
+위 코드를 합쳐, 유튜브 자막, 제목, 채널 이름, 링크를 크롤링하는 함수를 생성하였다. 크롤링한 정보를 데이터 프레임으로 생성하고 csv파일로 저장하는 코드를 추가하였다. pandas 모듈을 사용하여 pd.DataFrame({'열 이름':['데이터']})을 입력하면 데이터 프레임을 생성할 수 있다. 데이터 프레임을 생성한 후에 .to_csv를 입력하면 csv파일로 저장이 가능하다.
+
+```python 
+ytb_subtitle('링크(특정 값)')
+```
+
+함수를 생성하였으므로 다음과 같은 코드 한 줄이면 해당 링크 영상의 특정 값만 입력하면 자막과 제목, 채널 이름, 링크를 크롤링 할 수 있다.
+
+```python
+def ytb_add(start_url) : ### 기존 csv 파일에 추가
+    try:
+        srt = YouTubeTranscriptApi.get_transcript(f"{start_url}", languages=['ko'])
+
+        text = ''
+
+        h = {"User-Agent": "Mozilla/5.0"}
+        res = req.get(f"https://www.youtube.com/watch?v={start_url}", headers = h)
+        soap = BeautifulSoup(res.text, "html.parser")
+
+        title = soap.find('div').find('meta')
+        title = str(title).replace('<meta content=','')
+        title = title.replace(""" itemprop="name"/>""",'')
+
+        link = soap.find('div').find('link')
+        link = str(link).replace('link href=','')
+        link = link.replace(""" itemprop="url"/>""",'')
+
+        name = soap.find('div').find_all('link')
+        name = str(name[2:3]).replace('[<link content=','')
+        name = name.replace(""" itemprop="name"/>]""",'')
+
+        for i in range(len(srt)):
+            text += srt[i]['text'] + ' '
+
+        old_df = pd.read_csv('YoutubeSubtitle.csv', encoding='utf-8')
+        df = pd.DataFrame({'title':[title], 'link':[link], 'name':[name], 'text': [text]})
+        new_df = old_df.append(df, ignore_index=True)
+        new_df.to_csv('YoutubeSubtitle.csv')
+
+        print(title)
+        print(link)
+        print(name)
+        print(df)
+        print('O')
+    except :
+        print('X')
+```
+
+새로 생성한 csv 파일에 추가로 정보를 입력하기 위해 새로운 함수를 생성하였다. 최초의 크롤링은 ytb_subtitle() 함수를 사용하고, 이후 다른 링크를 추가로 크롤링하려면 ytb_add() 함수를 사용하면 된다.
+
+![Alt text](/images/t11.jpg)
+
+두 함수를 사용하여 만든 csv파일이다. 예시로 4개의 영상을 크롤링 실시하였다. 함수를 생성해두면 복잡한 코드도 위와 같이 한 줄로 실행이 가능하다는 장점이 있다. 이처럼 유튜브 자막을 크롤링하여 형태소 분석 및 텍스트 마이닝을 실시할 예정이다.
+        
 ---
 #### 전체 Code
 ```python 
